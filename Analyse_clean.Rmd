@@ -1,0 +1,48 @@
+---
+title: "R Notebook"
+output: html_notebook
+author: "Xavier Bouteiller"
+e-mail: "bouteiller.xavier@gmail.com"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message  = FALSE, warning = FALSE)
+knitr::opts_knit$set(root.dir = "~/Documents/research/FORMANRISK/data/plotetdata")
+```
+
+
+```{r library, echo = FALSE}
+library('raster')
+library('sp')
+```
+
+
+```{r varenv, echo = TRUE}
+r <- getData("worldclim", var="bio", res=0.5, lat=44.73696, lon=-0.77265)
+site = read.table("Formanrisk sampling - site information.csv",  h= T, sep = ',')
+coords <- data.frame(x=site$X,y=site$Y)
+points <- SpatialPoints(coords, proj4string = r@crs)
+values <- extract(r,points)
+df <- cbind.data.frame(coordinates(points),values)
+df = cbind.data.frame(df, site)
+
+r2 <- getData("worldclim", var="bio", res=0.5, lat=42.652968, lon=2.906672)
+coords <- data.frame(x=site$X,y=site$Y)
+points <- SpatialPoints(coords, proj4string =  r2@crs)
+values <- extract(r2,points)
+df2 <- cbind.data.frame(coordinates(points),values)
+df2 = cbind.data.frame(df2, site)
+names(df2) = names(df)
+
+df3 = rbind(df,df2)
+df3 = df3[!is.na(df3[,"bio1_15"]),]
+write.table(df3, 'varenv.csv', sep=";", row.names = FALSE)
+```
+
+```{r plot_pop, fig.dim = c(6, 4)} 
+plot(r[[1]])
+plot(r2[[1]], add=T)
+plot(points, add=T)
+``` 
+
+
