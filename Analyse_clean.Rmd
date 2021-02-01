@@ -5,44 +5,67 @@ author: "Xavier Bouteiller"
 e-mail: "bouteiller.xavier@gmail.com"
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, message  = FALSE, warning = FALSE)
-knitr::opts_knit$set(root.dir = "~/Documents/research/FORMANRISK/data/plotetdata")
+```{r setup}
+knitr::opts_chunk$set(echo = TRUE, message  = FALSE, warning = FALSE, error = FALSE)
+knitr::opts_knit$set(root.dir = normalizePath("/home/xavier/Documents/research/FORMANRISK/data/data_formanrisk"))
+```
+
+# Libraries
+
+```{r library, echo = TRUE}
+library("ade4")
+library('tidyverse')
+library('broom')
+library('lme4')
+library('lmerTest')
+library('gapminder')
+library('CARS')
+library("dismo")
+library('nlme')
+library('lme4')
+library("lmerTest")
+```
+
+# Import merged data set
+
+Importing the complete data set
+```{r df, echo = TRUE}
+df = read.table("individual_join.csv", sep = ";", header = TRUE)
+```
+
+```{r small_cleaning, include = FALSE}
+drop.cols = c("X", "Y")
+df =  df %>% dplyr::select(-one_of(drop.cols))
+df = df %>% rename_with(~ tolower(gsub("_15", "", .x, fixed = TRUE)))
+print(paste0("nrow is : ", dim(df)[1]))
+print(paste0("ncol is : ", dim(df)[2]))
+index_bio = grep("bio[[:digit:]]{1,2}", names(df))
+```
+
+```{r clean_bio_name, include = FALSE}
+# Our dictionary
+dictionary <- tibble::tibble(
+  new = c("Tmean_annual" ,"Mean_D_range" ,"Isothermality" ,"T_seasonality" ,"Tmax_warmerM" ,"Tmin_coldestM" ,"T_annual_range" ,"Tmean_wettestQ" ,"Tmean_driestQ" ,"Tmean_warmerQ" ,"Tmean_coldestQ" ,"P_annual" ,"P_wettestM" ,"P_driestM" ,"P_seasonality" ,"P_wettestQ" ,"P_driestQ" ,"P_warmestQ" ,"P_coldestQ"),
+  old = c("bio1" ,"bio2" ,"bio3" ,"bio4" ,"bio5" ,"bio6" ,"bio7" ,"bio8" ,"bio9" ,"bio10" ,"bio11" ,"bio12" ,"bio13" ,"bio14" ,"bio15" ,"bio16" ,"bio17" ,"bio18" ,"bio19"))
+# get the data variable names where there is a new name in the dictionary
+vars_found_in_dictionary = intersect(names(df), unique(dictionary$old))
+# create a temporary dictionary as a named vector
+temp_dict = dictionary %>% dplyr::filter(old %in% vars_found_in_dictionary) %>% tibble::deframe()
+df = df %>% dplyr::rename(!!temp_dict)
 ```
 
 
-```{r library, echo = FALSE}
-library('raster')
-library('sp')
+```{r df_info, echo = FALSE}
+print('data frame info')
+print(paste0("nrow is : ", dim(df)[1]))
+print(paste0("ncol is : ", dim(df)[2]))
 ```
 
 
-```{r varenv, echo = TRUE}
-r <- getData("worldclim", var="bio", res=0.5, lat=44.73696, lon=-0.77265)
-site = read.table("Formanrisk sampling - site information.csv",  h= T, sep = ',')
-coords <- data.frame(x=site$X,y=site$Y)
-points <- SpatialPoints(coords, proj4string = r@crs)
-values <- extract(r,points)
-df <- cbind.data.frame(coordinates(points),values)
-df = cbind.data.frame(df, site)
-
-r2 <- getData("worldclim", var="bio", res=0.5, lat=42.652968, lon=2.906672)
-coords <- data.frame(x=site$X,y=site$Y)
-points <- SpatialPoints(coords, proj4string =  r2@crs)
-values <- extract(r2,points)
-df2 <- cbind.data.frame(coordinates(points),values)
-df2 = cbind.data.frame(df2, site)
-names(df2) = names(df)
-
-df3 = rbind(df,df2)
-df3 = df3[!is.na(df3[,"bio1_15"]),]
-write.table(df3, 'varenv.csv', sep=";", row.names = FALSE)
-```
-
-```{r plot_pop, fig.dim = c(6, 4)} 
-plot(r[[1]])
-plot(r2[[1]], add=T)
-plot(points, add=T)
+extracting indexes of bioclimatic variables
+```{r bioclim)}
+names_bio = names(df)[index_bio]
+cat(names_bio, sep = '" ,"')
 ``` 
 
 
