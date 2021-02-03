@@ -141,6 +141,7 @@ DWDataReader/
 EssaiConversion/
 log/
 spectrofig/
+output/table
 
 #specific files
 DWDataReaderHeader.py
