@@ -36,7 +36,8 @@ df = cbind.data.frame(coordinates(points),values)
 df = cbind.data.frame(df, site)
 
 ### Assertion
-any(is.na(df[,"bio1_15"]))
+if(any(is.na(df[,"bio1_15"]))){print('Na are still remaining')}else{print('No Na')}
+
 
 ### Slighly shifting Branas latitude to avoid empy value
 inc = 0.00001
@@ -55,7 +56,28 @@ while(is.na(df[site$site == "Brañas Verdes", "bio1_15"])){
 }
 
 ### Assertion
-any(is.na(df[,"bio1_15"]))
+if(any(is.na(df[,"bio1_15"]))){print('NA are still remaining')}else{print('No NA')}
+
+### Aridity index
+str_name="/home/xavier/Downloads/7504448/global-ai_et0/ai_et0/ai_et0.tif"
+imported_raster=raster(str_name)
+
+### Paste Aridity values to data frame
+coords <- data.frame(x=site$X,y=site$Y)
+points <- SpatialPoints(coords, proj4string = imported_raster@crs)
+values <- extract(imported_raster,points)
+values = data.frame(values)
+names(values)= 'AI'
+df1 = cbind.data.frame(coordinates(points),values)
+df = cbind.data.frame(df, df1)
+df$AI = df$AI/10000
+
+
+## Drop some columns
+# library('dplyr')
+# drop.cols = c('x','y', 'email')
+# df %>% select(-one_of(drop.cols))
+
 
 ## Saving table
 write.table(df, 'varenv.csv', sep=";", row.names = FALSE)
@@ -72,6 +94,14 @@ dev.off()
 
 tiff(filename = paste0(save_path, '/map2.tiff'), h = 600, w=600, units = "px", pointsize = 12, compression = "zip")
 plot(r3[[5]],xlim=c(-11,6),ylim=c(38,45.5), col = terrain.colors(1000))
+# plot(r3[[1]],xlim=c(-7.9,-7.7),ylim=c(43.6,43.8))
+plot(points, add=T,  lwd = 2, col=as.integer(df$species_2))
+text(x=df$x, y=df$y , df$site, cex = 0.8 , col=as.integer(df$species_2), pos = 4, offset = 0.2)
+dev.off()
+
+
+tiff(filename = paste0(save_path, '/map4.tiff'), h = 600, w=600, units = "px", pointsize = 12, compression = "zip")
+plot(imported_raster[[1]],xlim=c(-11,6),ylim=c(38,45.5), col = terrain.colors(1000))
 # plot(r3[[1]],xlim=c(-7.9,-7.7),ylim=c(43.6,43.8))
 plot(points, add=T,  lwd = 2, col=as.integer(df$species_2))
 text(x=df$x, y=df$y , df$site, cex = 0.8 , col=as.integer(df$species_2), pos = 4, offset = 0.2)
