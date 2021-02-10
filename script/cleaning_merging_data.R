@@ -33,6 +33,12 @@ str(individual)
 pop = read.table("pop_result.csv", h=T, sep = ';')
 str(pop)
 
+raw = read.table("rawdata.csv", h=T, sep = ';')
+str(raw)
+
+sampl = read.table("sample.csv", h=T, sep = ';')
+str(sampl)
+
 ## cleaning pop name 
 env2 = env  %>% 
   mutate(site = as.factor(as.character(recode(site, "biscarosse"="biscarrosse", 
@@ -138,7 +144,89 @@ pop2 = pop %>%
                                               'la_teste' = 'la_teste'
   ))))
 
-## test
+
+
+
+
+
+raw2 = raw %>% 
+  mutate(site = as.factor(as.character(recode(Sampling_location, "biscarosse"="biscarrosse", 
+                                              "la_teste"="la teste", 
+                                              "lm"="lit et mixe", 
+                                              "mz"="mimizan", 
+                                              "spain continental dune"="spain dune", 
+                                              "spain branas"="branas", 
+                                              "orz"="orzaduero", 
+                                              "pinarest llanos"="llanos",
+                                              "Pierroton"="pierroton", 
+                                              "Duna Continental"="spain dune", 
+                                              "Orzaduero"="orzaduero", 
+                                              "PinaresLlanos"="llanos", 
+                                              "Mingorría"="", 
+                                              "Perpignan - Mas Palegrí"="perpignan", 
+                                              "Brañas Verdes"="branas", 
+                                              "Seirós (Ribeira de Pena) "="ribeira", 
+                                              "Leiria (Marinha Grande) "="leiria", 
+                                              "Seirós (Ribeira de Pena)"="ribeira", 
+                                              "Leiria (Marinha Grande)​"="leiria", 
+                                              "Oín"="oin", 
+                                              "Barroqueiras-San Vicente do Mar"="san vicente", 
+                                              "Biscarrosse"="biscarrosse", 
+                                              "Lit_et_Mixe"="lit et mixe", 
+                                              "Mimizan"="mimizan",
+                                              'Forêt domaniale de Cerbère'='cerbere',
+                                              'Céret (Le Palau)'= 'ceret',
+                                              'oin_es'='oin_es',
+                                              'oin_fr'='oin_fr',
+                                              'oin_es_leiria'= 'oin_P',
+                                              'hourtin' = 'hourtin',
+                                              'la_teste' = 'la_teste'
+  ))))
+
+sampl2 = sampl %>% 
+  mutate(site = as.factor(as.character(recode(site, "biscarosse"="biscarrosse", 
+                                              "la_teste"="la teste", 
+                                              "lm"="lit et mixe", 
+                                              "mz"="mimizan", 
+                                              "spain continental dune"="spain dune", 
+                                              "spain branas"="branas", 
+                                              "orz"="orzaduero", 
+                                              "pinarest llanos"="llanos",
+                                              "Pierroton"="pierroton", 
+                                              "Duna Continental"="spain dune", 
+                                              "Orzaduero"="orzaduero", 
+                                              "PinaresLlanos"="llanos", 
+                                              "Mingorría"="", 
+                                              "Perpignan - Mas Palegrí"="perpignan", 
+                                              "Brañas Verdes"="branas", 
+                                              "Seirós (Ribeira de Pena) "="ribeira", 
+                                              "Leiria (Marinha Grande) "="leiria", 
+                                              "Seirós (Ribeira de Pena)"="ribeira", 
+                                              "Leiria (Marinha Grande)​"="leiria", 
+                                              "Oín"="oin", 
+                                              "Barroqueiras-San Vicente do Mar"="san vicente", 
+                                              "Biscarrosse"="biscarrosse", 
+                                              "Lit_et_Mixe"="lit et mixe", 
+                                              "Mimizan"="mimizan",
+                                              'Forêt domaniale de Cerbère'='cerbere',
+                                              'Céret (Le Palau)'= 'ceret',
+                                              'oin_es'='oin_es',
+                                              'oin_fr'='oin_fr',
+                                              'oin_es_leiria'= 'oin_P',
+                                              'hourtin' = 'hourtin',
+                                              'la_teste' = 'la_teste'
+  ))))
+
+
+
+### Add REP
+
+REP = c()
+for(i in str_split(sampl2$code, " ")){ 
+  REP = append(REP, as.integer(tail(i,1)))
+  }
+print(REP)
+sampl2$REP = REP
 
 ### test
 if(all(levels(env2$site) %in% levels(indiv2$site))){

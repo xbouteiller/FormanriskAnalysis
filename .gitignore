@@ -142,6 +142,7 @@ EssaiConversion/
 log/
 spectrofig/
 output/table
+GIS/
 
 #specific files
 DWDataReaderHeader.py
