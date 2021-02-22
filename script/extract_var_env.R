@@ -26,6 +26,15 @@ r3 = merge(r, r2)
 ### importing pop info data base
 site = read.table("Formanrisk sampling - site information.csv",  h= T, sep = ',')
 
+
+################################################################################################################################
+#### New pop extracted by Sylvain
+site_new = read.table("new_pop_info.csv",  h= T, sep = ';')
+colnames(site_new) = c('Country', 'num', 'site', 'X', 'Y', 'elevation.m.', 'species_2')
+site = merge(site, site_new, by = colnames(site_new), all = TRUE)
+################################################################################################################################
+
+
 ### Merging worlclim and pop info based on X Y coordinates
 coords <- data.frame(x=site$X,y=site$Y)
 points <- SpatialPoints(coords, proj4string = r3@crs)

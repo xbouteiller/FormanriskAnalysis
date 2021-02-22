@@ -39,6 +39,31 @@ str(raw)
 sampl = read.table("sample.csv", h=T, sep = ';')
 str(sampl)
 
+################################################################################################################################
+#### New pop extracted by Sylvain
+site_new_i= read.table("new_pop_info.csv",  h= T, sep = ';')
+
+site_new_v= read.table("new_pop_value.csv",  h= T, sep = ',')
+site_new_v$site = as.character(site_new_v$site)
+
+
+#### rename pop from number to character
+for(i in seq(1,nrow(site_new_i))){
+  num = site_new_i[i,'pop_number']
+  popname = site_new_i[i,'site']
+  site_new_v[site_new_v$site == num, 'site'] = as.character(popname)
+}
+site_new_v
+
+str(site_new_v)
+site_new_v$P50 = -1*site_new_v$P50
+#### check col names
+colnames(site_new_v) %in% colnames(sampl)
+
+#### merge
+sampl = merge(sampl, site_new_v, by = colnames(site_new_v), all = TRUE)
+################################################################################################################################
+
 ## cleaning pop name 
 env2 = env  %>% 
   mutate(site = as.factor(as.character(recode(site, "biscarosse"="biscarrosse", 
@@ -227,13 +252,15 @@ for(i in str_split(sampl2$code, " ")){
   }
 print(REP)
 sampl2$REP = REP
+sampl2$REP[is.na(sampl2$REP)] = 1
+print(sampl2$REP)
 
 ### test
-if(all(levels(env2$site) %in% levels(indiv2$site))){
+if(all(levels(env2$site) %in% levels(sampl2$site))){
   print('ok all pops are here')
 }else{
   print('error')
-  print(levels(env2$site)[!(levels(env2$site) %in% levels(indiv2$site))])
+  print(levels(env2$site)[!(levels(env2$site) %in% levels(sampl2$site))])
 }
 
 ### test
@@ -241,22 +268,27 @@ if(all(levels(env2$site) %in% levels(pop2$site))){
   print('ok all pops are here')
 }else{
   print('error')
-  print(levels(env2$site)[!(levels(env2$site) %in% levels(indiv2$site))])
+  print(levels(env2$site)[!(levels(env2$site) %in% levels(sampl2$site))])
 }
 
 
 
 ## join 
-ind_join = indiv2 %>% full_join(env2, by='site')
+ind_join = sampl2 %>% full_join(env2, by='site')
 pop_join = pop2 %>% full_join(env2, by='site')
+
 ### test
-if(all(levels(ind_join$site) %in% levels(indiv2$site))){
+if(all(levels(ind_join$site) %in% levels(sampl2$site))){
   print('ok all pops are here')
 }else{
   print('error')
-  print(levels(env2$site)[!(levels(env2$site) %in% levels(indiv2$site))])
+  print(levels(env2$site)[!(levels(env2$site) %in% levels(sampl2$site))])
 }
 
 ## save table
+if( any('mimizan2' %in% ind_join$site)){
+write.table(ind_join, 'individual_join_add.csv', sep=";", row.names = FALSE)
+}else{
 write.table(ind_join, 'individual_join.csv', sep=";", row.names = FALSE)
 write.table(pop_join, 'pop_join.csv', sep=";", row.names = FALSE)
+}
